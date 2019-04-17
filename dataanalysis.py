@@ -1,6 +1,7 @@
 
 import csv
 import nltk
+from wordcloud import WordCloud, STOPWORDS
 
 def clean(word):
 	word = word.lower()
@@ -10,6 +11,21 @@ def clean(word):
     word = word.replace('"',"")
     word = word.replace("\n","")
 	return word
+
+def create_wordcloud(words):
+	# Generate the frequencies of everyword
+	frequencies = {}
+
+	for k, v in words.iteritems():
+
+	# Create and return the wordcloud
+	w  = WordCloud(
+		stopwords=STOPWORDS,
+		background_color="white", 
+		width=1200,
+		height=1000).generate_from_frequencies(frequencies)
+
+	return w
 
 filename = "text_clean.csv"
 MAX_USERNAME_LENGTH = 15
@@ -69,4 +85,6 @@ with open(filename, "r+") as rows:
 				if len(mention_adjectives[mention]) != 0:
 					mention_adjectives[mention].extend(adjectives) 
 
-                
+de{}
+for a, q in Cluster_1_FW:
+    d[a] = float(q)
