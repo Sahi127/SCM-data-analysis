@@ -1,31 +1,68 @@
+"""
+TODO: Only select tweets from these four celebrities 
+desired_accounts = ("Ariana Grande", "Katy Perry", "Oprah", "Taylor Swift")
+"""
 
 import csv
 import nltk
-from wordcloud import WordCloud, STOPWORDS
+import numpy as np
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+from textblob import TextBlob
+from textblob.sentiments import NaiveBayesAnalyzer
+
+import matplotlib.pyplot as plt
 
 def clean(word):
 	word = word.lower()
-    word = word.replace(".","")
-    word = word.replace(",","")
-    word = word.replace("\"","")
-    word = word.replace('"',"")
-    word = word.replace("\n","")
+	word = word.replace(".", "")
+	word = word.replace(",", "")
+	word = word.replace("\"", "")
+	word = word.replace("\\", "")
+	word = word.replace('"', "")
+	word = word.replace("\n", "")
 	return word
 
+def clean_list(adjectives):
+	for i, adj in enumerate(adjectives):
+		# If the adjective is an @ sign, delete it
+		if adj == "@":
+			del adjectives[i]
+		# If the adjetive contains a stop word, delete it
+		if adj in STOPWORDS:
+			del adjectives[i]
+	return adjectives
+
 def create_wordcloud(words):
-	# Generate the frequencies of everyword
-	frequencies = {}
-
-	for k, v in words.iteritems():
-
+	adjectives = " "
+	
+	for k, v in words.items():
+		adjectives = adjectives + " ".join(v) + " "
+	
 	# Create and return the wordcloud
-	w  = WordCloud(
-		stopwords=STOPWORDS,
-		background_color="white", 
-		width=1200,
-		height=1000).generate_from_frequencies(frequencies)
+	w  = WordCloud().generate(adjectives)
 
 	return w
+
+def find_positive_adjectives(adjectives):
+	positives = []
+	# For every mention in the dictionary
+	for k, v in adjectives.items():
+
+		# For every adjective listed for this mention
+		for i, adj in enumerate(v):
+			
+			# Find the sentiment of the adjective
+			blob = TextBlob(adj, analyzer=NaiveBayesAnalyzer())
+			
+			print(blob.sentiment.classification)
+			# If the sentiment is not possitive, delete the adjective
+			if blob.sentiment.classification != "pos":
+				del v[i]
+		
+		# Override the adjectives for this mention and move on to the next one
+		adjectives[k] = v
+	
+	return adjectives
 
 filename = "text_clean.csv"
 MAX_USERNAME_LENGTH = 15
@@ -41,6 +78,9 @@ count = 0
 with open(filename, "r+") as rows:
 	content = csv.reader(rows, delimiter=",") 
 	for i, row in enumerate(content):
+		if i == 20:
+			break
+
 		# Ignore empty rows
 		if len(row) == 0:
 			continue
@@ -73,6 +113,8 @@ with open(filename, "r+") as rows:
 					# ...lean the word and add it to a list of adjectives
 					adjectives.append(clean(word[0]))
 			
+			adjectives = clean_list(adjectives)
+
 			# Associate the current mention with all of the found adjectives and
 			# move to the next tweet. If they were already previously mentioned
 			# add the newly found adjectives to the preexisting array.
@@ -83,8 +125,30 @@ with open(filename, "r+") as rows:
 			
 			if mention in mention_adjectives:
 				if len(mention_adjectives[mention]) != 0:
-					mention_adjectives[mention].extend(adjectives) 
+					mention_adjectives[mention].extend(adjectives)
+			else:
+				# The mention does not exist in the hash table yet, add it and associate
+				# the adjectives that were just extracted from the tweet in the current row
+				mention_adjectives[mention] = adjectives
 
-de{}
-for a, q in Cluster_1_FW:
-    d[a] = float(q)
+
+# Create and display the generated wordcloud
+plt.imshow(create_wordcloud(mention_adjectives))
+plt.axis("off")
+plt.show()
+
+
+
+# Create a bargraph using only positive adjectives
+# mention_adjectives = find_positive_adjectives(mention_adjectives)
+
+# objects = ('Ariana Grande: @ArianaGrande', 'Katy Perry: @katyperry', 'Oprah: @Oprah', 'Taylor Swift: @taylorswift13')
+# y_pos = np.arange(len(objects))
+# performance = [10,8,6,4,2,1]
+ 
+# plt.bar(y_pos, performance, align='center', alpha=0.5)
+# plt.xticks(y_pos, objects)
+# plt.ylabel('Usage')
+# plt.title('Programming language usage')
+ 
+plt.show()
