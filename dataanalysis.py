@@ -133,10 +133,9 @@ with open(filename, "r+") as rows:
 
 
 # Create and display the generated wordcloud
-plt.imshow(create_wordcloud(mention_adjectives))
+plt.imshow(create_wordcloud(mention_adjectives)) 
 plt.axis("off")
 plt.show()
-
 
 
 # Create a bargraph using only positive adjectives
@@ -150,5 +149,3 @@ plt.show()
 # plt.xticks(y_pos, objects)
 # plt.ylabel('Usage')
 # plt.title('Programming language usage')
- 
-plt.show()
